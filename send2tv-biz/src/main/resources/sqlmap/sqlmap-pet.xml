@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="pet.dao">
+	
+	<!--
+      - ===============================================
+      - 配置缓存
+      - ===============================================
+    -->
+    
+	<cacheModel id="petCache" type="LRU">
+		<flushInterval seconds="10"/>
+		<flushOnExecute statement="pet.dao.insert"/>
+		<flushOnExecute statement="pet.dao.update"/>
+		<flushOnExecute statement="pet.dao.delete"/>
+		<property name="cache-size" value="1024"/>
+	</cacheModel>
+
+	<typeAlias alias="pet" type="org.sky31.petstore.domain.PetDO"/>
+	<typeAlias alias="petQueryModel" type="org.sky31.petstore.model.PetQueryModel"/>
+	
+	<!--
+      - ===============================================
+      - 配置结果映射
+      - ===============================================
+    -->
+    
+	<resultMap id="petResultMap" class="pet">
+		<result property="id" column="id"/>
+		<result property="name" column="name"/>
+		<result property="type" column="type"/>
+		<result property="isSelled" column="is_selled"/>
+		<result property="color" column="color"/>
+		<result property="description" column="description"/>
+		<result property="weight" column="weight"/>
+		<result property="height" column="height"/>
+		<result property="gmtCreate" column="gmt_create"/>
+		<result property="gmtModified" column="gmt_modified"/>
+	</resultMap>
+	
+	<!--
+      - ===============================================
+      - 创建一个pet
+      - ===============================================
+    -->
+	<insert id="insert" parameterClass="pet">
+		<![CDATA[
+	        INSERT INTO pet (
+        		id,
+                name,
+                type,
+                is_selled,
+                color,
+                description,
+                weight,
+                height,
+                gmt_create,
+                gmt_modified
+	        ) VALUES (
+	        	null,
+	        	#name#,
+	        	#type#,
+	        	#isSelled#,
+	        	#color#,
+                #description#,
+                #weight#,
+                #height#,
+                sysdate(),
+                sysdate()
+	        )
+    	]]>
+    	<selectKey resultClass="long" keyProperty="id" >
+   			<![CDATA[
+   				SELECT @@IDENTITY AS id
+   			]]>
+   		</selectKey> 
+	</insert>
+	
+	<!--
+      - ===============================================
+      - 按id查询
+      - ===============================================
+    -->
+	<select id="queryById" parameterClass="long" resultMap="petResultMap" cacheModel="petCache">
+		<![CDATA[
+	        SELECT
+	        	id,
+                name,
+                type,
+                is_selled,
+                color,
+                description,
+                weight,
+                height,
+                gmt_create,
+                gmt_modified
+	        FROM pet
+	       		WHERE id = #value#
+    	]]>
+	</select>
+	
+	<!--
+      - ===============================================
+      - 按QueryModel查询
+      - ===============================================
+    -->
+	<select id="query" parameterClass="petQueryModel" resultMap="petResultMap" cacheModel="petCache">
+		<![CDATA[
+	        SELECT
+	        	id,
+                name,
+                type,
+                is_selled,
+                color,
+                description,
+                weight,
+                height,
+                gmt_create,
+                gmt_modified
+	        FROM pet
+    	]]>
+    	<dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="name">
+				<!-- 模糊查询 -->
+				name like #%name%#
+            </isNotNull>
+            <isNotNull prepend="AND" property="type">
+				type = #type#
+            </isNotNull>
+            <isNotNull prepend="AND" property="isSelled">
+				is_selled = #isSelled#
+            </isNotNull>
+            <isNotNull prepend="AND" property="color">
+				color = #color#
+            </isNotNull>
+            <isNotNull prepend="AND" property="description">
+				description = #description#
+            </isNotNull>
+            <isNotNull prepend="AND" property="weight">
+				weight = #weight#
+            </isNotNull>
+            <isNotNull prepend="AND" property="height">
+				height = #height#
+            </isNotNull>
+    	</dynamic>
+    	<![CDATA[
+    		ORDER BY id
+    		LIMIT #start#, #pageSize#
+    	]]>
+	</select>
+	
+	<!--
+      - ===============================================
+      - COUNT
+      - ===============================================
+    -->
+	<select id="count" parameterClass="petQueryModel" resultClass="long" cacheModel="petCache">
+		<![CDATA[
+	        SELECT
+	        	COUNT(*)
+	        FROM pet
+    	]]>
+    	<dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="name">
+				<!-- 模糊查询 -->
+				name like #%name%#
+            </isNotNull>
+            <isNotNull prepend="AND" property="type">
+				type = #type#
+            </isNotNull>
+            <isNotNull prepend="AND" property="isSelled">
+				is_selled = #isSelled#
+            </isNotNull>
+            <isNotNull prepend="AND" property="color">
+				color = #color#
+            </isNotNull>
+            <isNotNull prepend="AND" property="description">
+				description = #description#
+            </isNotNull>
+            <isNotNull prepend="AND" property="weight">
+				weight = #weight#
+            </isNotNull>
+            <isNotNull prepend="AND" property="height">
+				height = #height#
+            </isNotNull>
+    	</dynamic>
+	</select>
+
+	<!--
+      - ===============================================
+      - 更新pet
+      - ===============================================
+    -->
+	<update id="update" parameterClass="pet">
+		UPDATE pet
+		<dynamic prepend="SET">
+			<isNotNull prepend="," property="name">
+				<!-- 模糊查询 -->
+				name = #name:VARCHAR#
+            </isNotNull>
+            <isNotNull prepend="," property="type">
+				type = #type:INT#
+            </isNotNull>
+            <isNotNull prepend="," property="isSelled">
+				is_selled = #isSelled:TINYINT#
+            </isNotNull>
+            <isNotNull prepend="," property="color">
+				color = #color:VARCHAR#
+            </isNotNull>
+            <isNotNull prepend="," property="description">
+				description = #description:VARCHAR#
+            </isNotNull>
+            <isNotNull prepend="," property="weight">
+				weight = #weight:DOUBLE#
+            </isNotNull>
+            <isNotNull prepend="," property="height">
+				height = #height:DOUBLE#
+            </isNotNull>
+            	,gmt_modified = sysdate()
+		</dynamic>
+	    WHERE id = #id#
+	</update>
+	
+	<!--
+      - ===============================================
+      - 删除pet
+      - ===============================================
+    -->
+	<delete id="delete" parameterClass="long">
+		<![CDATA[
+	        DELETE FROM pet
+	        WHERE id = #value#
+    	]]>
+	</delete>
+</sqlMap>

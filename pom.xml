@@ -29,7 +29,7 @@
 		<util.version>1.0-SNAPSHOT</util.version>
 		<icache.version>1.0-SNAPSHOT</icache.version>
 		<commons-lang.version>2.2</commons-lang.version>
-		<lucene.version>3.5.0</lucene.version>
+		<lucene.version>7.1.0</lucene.version>
 		<lucene-analyzers.version>3.5.0</lucene-analyzers.version>
 		<downloadSources>true</downloadSources>
 		<org.slf4j-version>1.6.1</org.slf4j-version>
